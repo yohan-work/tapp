@@ -7,12 +7,13 @@
     "pwa-upgrader": "dist/cli.js"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && npm run copy-templates",
+    "copy-templates": "mkdir -p dist/templates && cp -r src/templates/* dist/templates/",
     "dev": "tsx src/cli.ts",
     "icons": "tsx src/icon/generate-icons.ts",
     "report": "tsx src/lighthouse/run-lh.ts",
     "workbox": "workbox generateSW workbox-config.js",
-    "prepublishOnly": "pnpm build"
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "pwa",
@@ -41,4 +42,3 @@
     "node": ">=18.0.0"
   }
 }
-
