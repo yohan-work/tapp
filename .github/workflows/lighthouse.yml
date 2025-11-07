@@ -1,0 +1,71 @@
+name: Lighthouse PWA Report
+
+on:
+  # 수동 실행 (URL 입력 받기)
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'PWA로 분석할 웹사이트 URL'
+        required: true
+        default: 'https://example.com'
+      app_name:
+        description: '앱 이름'
+        required: false
+        default: 'My PWA'
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 체크아웃
+        uses: actions/checkout@v4
+      
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: pnpm 설치
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      
+      - name: 의존성 설치
+        run: pnpm install
+      
+      - name: 프로젝트 빌드
+        run: pnpm build
+      
+      - name: Lighthouse 리포트 생성
+        run: |
+          node dist/lighthouse/run-lh.js "${{ github.event.inputs.url }}" "./lighthouse-output"
+        continue-on-error: true
+      
+      - name: 리포트 아티팩트 업로드
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-report-${{ github.run_number }}
+          path: |
+            lighthouse-output/report.html
+            lighthouse-output/report.json
+            lighthouse-output/checklist.md
+          retention-days: 30
+      
+      - name: 결과 요약 출력
+        if: always()
+        run: |
+          echo "### 🔍 Lighthouse PWA 리포트 생성 완료" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**분석 대상:** ${{ github.event.inputs.url }}" >> $GITHUB_STEP_SUMMARY
+          echo "**앱 이름:** ${{ github.event.inputs.app_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "리포트는 아티팩트 섹션에서 다운로드할 수 있습니다." >> $GITHUB_STEP_SUMMARY
+          
+          # checklist.md가 있으면 내용 출력
+          if [ -f lighthouse-output/checklist.md ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            cat lighthouse-output/checklist.md >> $GITHUB_STEP_SUMMARY
+          fi
+
