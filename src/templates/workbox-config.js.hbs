@@ -1,0 +1,86 @@
+// Workbox 설정 파일
+// 생성일: {{generatedDate}}
+
+module.exports = {
+  // 대상 디렉토리
+  globDirectory: '{{publicDir}}',
+  
+  // 프리캐시할 파일 패턴
+  globPatterns: [
+    '**/*.{html,js,css,png,jpg,jpeg,svg,gif,webp,woff,woff2,ttf,eot}'
+  ],
+  
+  // Service Worker 출력 경로
+  swDest: '{{publicDir}}/sw.js',
+  
+  // 캐시 버전 관리
+  clientsClaim: true,
+  skipWaiting: true,
+  
+  // 런타임 캐싱 전략
+  runtimeCaching: [
+    {
+      // 이미지 파일: CacheFirst (캐시 우선, 오래 보관)
+      urlPattern: ({request}) => request.destination === 'image',
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'images',
+        expiration: {
+          maxEntries: 200,
+          maxAgeSeconds: 60 * 60 * 24 * 30 // 30일
+        },
+        cacheableResponse: {
+          statuses: [0, 200]
+        }
+      }
+    },
+    {
+      // JS, CSS, HTML: StaleWhileRevalidate (캐시 반환 후 백그라운드 업데이트)
+      urlPattern: ({request}) => ['script', 'style', 'document'].includes(request.destination),
+      handler: 'StaleWhileRevalidate',
+      options: {
+        cacheName: 'assets',
+        expiration: {
+          maxEntries: 100,
+          maxAgeSeconds: 60 * 60 * 24 * 7 // 7일
+        }
+      }
+    },
+    {
+      // 폰트: CacheFirst (캐시 우선)
+      urlPattern: ({request}) => request.destination === 'font',
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'fonts',
+        expiration: {
+          maxEntries: 30,
+          maxAgeSeconds: 60 * 60 * 24 * 365 // 1년
+        },
+        cacheableResponse: {
+          statuses: [0, 200]
+        }
+      }
+    },
+    {
+      // API 요청: NetworkFirst (네트워크 우선, 실패 시 캐시)
+      urlPattern: ({url}) => url.pathname.startsWith('/api/'),
+      handler: 'NetworkFirst',
+      options: {
+        cacheName: 'api',
+        expiration: {
+          maxEntries: 50,
+          maxAgeSeconds: 60 * 5 // 5분
+        },
+        networkTimeoutSeconds: 10
+      }
+    }
+  ],
+  
+  // 오프라인 폴백
+  navigateFallback: '/offline.html',
+  navigateFallbackDenylist: [
+    /^\/_/,
+    /\/[^/?]+\.[^/]+$/
+  ]
+};
+
