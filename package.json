@@ -1,0 +1,44 @@
+{
+  "name": "pwa-upgrader",
+  "version": "1.0.0",
+  "description": "도메인을 PWA로 전환하는 필수 파일과 가이드를 자동 생성하는 CLI 도구",
+  "type": "module",
+  "bin": {
+    "pwa-upgrader": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/cli.ts",
+    "icons": "tsx src/icon/generate-icons.ts",
+    "report": "tsx src/lighthouse/run-lh.ts",
+    "workbox": "workbox generateSW workbox-config.js",
+    "prepublishOnly": "pnpm build"
+  },
+  "keywords": [
+    "pwa",
+    "progressive-web-app",
+    "manifest",
+    "service-worker",
+    "cli",
+    "offline"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^12.0.0",
+    "handlebars": "^4.7.8",
+    "sharp": "^0.33.2",
+    "lighthouse": "^11.5.0",
+    "chrome-launcher": "^1.1.0",
+    "workbox-cli": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.16",
+    "typescript": "^5.3.3",
+    "tsx": "^4.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+
